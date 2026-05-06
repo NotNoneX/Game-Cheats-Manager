@@ -436,8 +436,8 @@
         "game_name": "Monster Hunter Stories 3: Twisted Reflection",
         "origin": "ct_other",
         "author": "ModEngine",
-        "gcm_url": "GCM/GCM Trainers/Monster Hunter Stories 3_Twisted Reflection Trainer [ModEngine].ct",
-        "version": "2026.2.27"
+        "gcm_url": "GCM/GCM Trainers/Monster Hunter Stories 3_Twisted Reflection Trainer [ModEngine].zip",
+        "version": "2026.2.10"
     },
     {
         "game_name": "Matchmaking Inc.",
@@ -769,7 +769,7 @@
         "author": "简简单单2022",
         "official_url": "https://bbs.3dmgame.com/thread-6653672-1-1.html",
         "gcm_url": "GCM/GCM Trainers/Long Yin Li Zhi Zhuan Trainer [JianJianDanDan2022].ct",
-        "version": "2026.3.27"
+        "version": "2026.4.28"
     },
     {
         "game_name": "Loot of Baal",
@@ -985,7 +985,7 @@
         "author": "LHY1339",
         "official_url": "https://github.com/LHY1339/cheat_ready_or_not",
         "gcm_url": "GCM/GCM Trainers/Ready or Not Trainer [LHY1339].exe",
-        "version": "2026.4.15"
+        "version": "2026.4.26"
     },
     {
         "game_name": "Backrooms: Extractions",
@@ -1471,7 +1471,7 @@
         "author": "大母鹅",
         "official_url": "https://www.loxin.top/archives/1050",
         "gcm_url": "GCM/GCM Trainers/Crimson Desert Trainer [DaMuE].exe",
-        "version": "2026.4.25"
+        "version": "2026.5.5"
     },
     {
         "game_name": "Just Cause 2",
@@ -1822,7 +1822,7 @@
         "official_url": "https://bbs.3dmgame.com/thread-6662245-1-1.html",
         "gcm_url": "GCM/GCM Trainers/Beast Saga Trainer [WuYunWuYun].zip",
         "extension": "none",
-        "version": "2026.3.27"
+        "version": "2026.4.4"
     },
     {
         "game_name": "Wandering Sword",
@@ -2243,5 +2243,267 @@
         "official_url": "https://www.nexusmods.com/stray/mods/369",
         "gcm_url": "GCM/GCM Trainers/Stray Trainer [Async].exe",
         "version": "2025.9.4"
+    },
+    {
+        "game_name": "Company of Heroes 2",
+        "origin": "other",
+        "author": "MrAntiFun",
+        "official_url": "https://mrantifun.net/threads/company-of-heroes-2-trainer.22/",
+        "gcm_url": "GCM/GCM Trainers/Company of Heroes 2 Trainer [MrAntiFun].exe",
+        "version": "2017.6.20"
+    },
+    {
+        "game_name": "Crynaria: Tears In The Abyss",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/Crynaria_Tears In The Abyss Trainer [jx666].zip",
+        "extension": "none",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "FINAL FANTASY TACTICS - The Ivalice Chronicles",
+        "origin": "ct_other",
+        "author": "xiao",
+        "gcm_url": "GCM/GCM Trainers/FINAL FANTASY TACTICS - The Ivalice Chronicles Trainer [xiao].ct",
+        "version": "2026.4.12"
+    },
+    {
+        "game_name": "Flee, My Elven Ninja! 3D",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/Flee, My Elven Ninja! 3D Trainer [jx666].zip",
+        "extension": "none",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "Hospital Seduction",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/Hospital Seduction Trainer [jx666].zip",
+        "extension": "none",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "Kaiju Princess 2",
+        "origin": "ct_other",
+        "author": "Yukikaco",
+        "official_url": "https://github.com/asd9176506911298/Cheat-Engine-CT",
+        "gcm_url": "GCM/GCM Trainers/Kaiju Princess 2 Trainer [Yukikaco].zip",
+        "version": "2024.12.17"
+    },
+    {
+        "game_name": "NTR Master",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/NTR Master Trainer [jx666].zip",
+        "extension": "none",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "Part-Time Witch",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/Part-Time Witch Trainer [jx666].zip",
+        "extension": "none",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "Phoenotopia: Awakening",
+        "origin": "ct_other",
+        "author": "ndck76",
+        "official_url": "https://fearlessrevolution.com/viewtopic.php?t=15005",
+        "gcm_url": "GCM/GCM Trainers/Phoenotopia_Awakening Trainer [ndck76].ct",
+        "version": "2021.4.13"
+    },
+    {
+        "game_name": "Sniper Elite 5",
+        "origin": "ct_other",
+        "author": "Paul44",
+        "official_url": "https://fearlessrevolution.com/viewtopic.php?t=33958",
+        "gcm_url": "GCM/GCM Trainers/Sniper Elite 5 Trainer [Paul44].ct",
+        "version": "2026.2.9"
+    },
+    {
+        "game_name": "Baldur's Gate 3",
+        "origin": "ct_other",
+        "author": "Serofix",
+        "official_url": "https://www.nexusmods.com/baldursgate3/mods/6917",
+        "gcm_url": "GCM/GCM Trainers/Baldur's Gate 3 Trainer [Serofix].zip",
+        "version": "2025.1.26"
+    },
+    {
+        "game_name": "Stranger Maidens Please Protect Me!",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/Stranger Maidens Please Protect Me! Trainer [jx666].zip",
+        "extension": "none",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "Surfpunk",
+        "origin": "ct_other",
+        "author": "HeLi6112",
+        "gcm_url": "GCM/GCM Trainers/Surfpunk Trainer [HeLi6112].ct",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "Yokai Art 2: Tales of the Nine-Tails",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/Yokai Art 2_Tales of the Nine-Tails Trainer [jx666].zip",
+        "extension": "none",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "Yumi no Fantasy",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/Yumi no Fantasy Trainer [jx666].zip",
+        "extension": "none",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "GOD EATER 2 Rage Burst",
+        "origin": "other",
+        "author": "清羽510",
+        "official_url": "https://space.bilibili.com/22143170",
+        "gcm_url": "GCM/GCM Trainers/GOD EATER 2_Rage Burst Trainer [Qingyu510].exe",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "GOD EATER 3",
+        "origin": "other",
+        "author": "清羽510",
+        "official_url": "https://space.bilibili.com/22143170",
+        "gcm_url": "GCM/GCM Trainers/GOD EATER 3 Trainer [Qingyu510].exe",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "GOD EATER RESURRECTION",
+        "origin": "other",
+        "author": "清羽510",
+        "official_url": "https://space.bilibili.com/22143170",
+        "gcm_url": "GCM/GCM Trainers/GOD EATER RESURRECTION Trainer [Qingyu510].exe",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "Eastern Era",
+        "origin": "ct_other",
+        "author": "lijie0699",
+        "official_url": "https://bbs.3dmgame.com/thread-6667492-1-1.html",
+        "gcm_url": "GCM/GCM Trainers/Eastern Era Trainer [lijie0699].ct",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "Plants vs. Zombies: Xin Zhi Dao",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/Plants vs. Zombies_Xin Zhi Dao Trainer [jx666].zip",
+        "extension": "none",
+        "version": "2026.4.29"
+    },
+    {
+        "game_name": "Beast Saga",
+        "origin": "ct_other",
+        "author": "acasfq",
+        "official_url": "https://bbs.3dmgame.com/thread-6662244-1-1.html",
+        "gcm_url": "GCM/GCM Trainers/Beast Saga Trainer [acasfq].ct",
+        "version": "2026.4.10"
+    },
+    {
+        "game_name": "Windrose",
+        "origin": "ct_other",
+        "author": "BabyGroot",
+        "official_url": "https://fearlessrevolution.com/viewtopic.php?t=38345",
+        "gcm_url": "GCM/GCM Trainers/Windrose Trainer [BabyGroot].ct",
+        "version": "2026.4.14"
+    },
+    {
+        "game_name": "Crimson Oath",
+        "origin": "ct_other",
+        "author": "Patka",
+        "official_url": "https://fearlessrevolution.com/viewtopic.php?t=39246",
+        "gcm_url": "GCM/GCM Trainers/Crimson Oath Trainer [Patka].ct",
+        "version": "2026.5.2"
+    },
+    {
+        "game_name": "Death Stranding 2: On the Beach",
+        "origin": "ct_other",
+        "author": "贊熹HU",
+        "official_url": "https://bbs.3dmgame.com/thread-6661046-1-1.html",
+        "gcm_url": "GCM/GCM Trainers/Death Stranding 2_On the Beach Trainer [ZanXiHU].ct",
+        "version": "2026.4.17"
+    },
+    {
+        "game_name": "Dead Space 2",
+        "origin": "other",
+        "author": "MrAntiFun",
+        "official_url": "https://mrantifun.net/threads/dead-space-2-trainer.9149/",
+        "gcm_url": "GCM/GCM Trainers/Dead Space 2 Trainer [MrAntiFun].exe",
+        "version": "2016.9.7"
+    },
+    {
+        "game_name": "Tales of Justice Academy: Winds Arise",
+        "origin": "ct_other",
+        "official_url": "https://bbs.3dmgame.com/thread-6670329-1-1.html",
+        "gcm_url": "GCM/GCM Trainers/Tales of Justice Academy_Winds Arise Trainer.ct",
+        "version": "2026.5.5"
+    },
+    {
+        "game_name": "Overlord II",
+        "origin": "other",
+        "author": "KelSat",
+        "gcm_url": "GCM/GCM Trainers/Overlord II Trainer [KelSat].exe",
+        "version": "2026.5.6"
+    },
+    {
+        "game_name": "Command & Conquer: Red Alert 3",
+        "origin": "other",
+        "author": "闇之幻影",
+        "gcm_url": "GCM/GCM Trainers/Command & Conquer_Red Alert 3 Trainer [AnZhiHuanYing].exe",
+        "version": "2009.12.31"
+    },
+    {
+        "game_name": "Sudden Strike 5",
+        "origin": "ct_other",
+        "gcm_url": "GCM/GCM Trainers/Sudden Strike 5 Trainer.ct",
+        "version": "2026.5.6"
+    },
+    {
+        "game_name": "The Wife Next Door",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/The Wife Next Door Trainer [jx666].zip",
+        "extension": "none",
+        "version": "2026.5.6"
+    },
+    {
+        "game_name": "Football Manager 2026",
+        "origin": "ct_other",
+        "author": "fm-san爱好研究小组",
+        "gcm_url": "GCM/GCM Trainers/Football Manager 2026 Trainer [fm-san].cetrainer",
+        "version": "2026.5.6"
+    },
+    {
+        "game_name": "Call of Duty: Modern Warfare 3",
+        "origin": "other",
+        "author": "花开花终落",
+        "gcm_url": "GCM/GCM Trainers/Call of Duty_Modern Warfare 3 Trainer [HuaKaiHuaZhongLuo].exe",
+        "version": "2026.5.6"
+    },
+    {
+        "game_name": "Scritchy Scratchy",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/Scritchy Scratchy Trainer [jx666].zip",
+        "extension": "none",
+        "version": "2026.5.6"
+    },
+    {
+        "game_name": "Fei Yue Xian Xing Lu",
+        "origin": "other",
+        "author": "jx666",
+        "gcm_url": "GCM/GCM Trainers/Fei Yue Xian Xing Lu Trainer [jx666].zip",
+        "version": "2026.5.6"
     }
 ]

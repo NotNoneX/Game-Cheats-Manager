@@ -13,7 +13,7 @@ import winreg
 
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QAction, QColor, QFont, QFontDatabase, QIcon, QPainter, QPixmap
-from PyQt6.QtWidgets import QApplication, QFileDialog, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QListWidgetItem, QMainWindow, QMessageBox, QProgressBar, QStatusBar, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QApplication, QFileDialog, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QListWidgetItem, QMainWindow, QMessageBox, QStatusBar, QVBoxLayout, QWidget
 from tendo import singleton
 from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtSvgWidgets import QSvgWidget
@@ -812,40 +812,30 @@ class GameCheatsManager(QMainWindow):
             headerLayout.addWidget(self.downloadProgressLabel)
             headerLayout.addStretch()
             widgetLayout.addLayout(headerLayout)
-            self.downloadProgressBar = QProgressBar()
-            self.downloadProgressBar.setRange(0, 0)
-            self.downloadProgressBar.setFixedHeight(15)
+            self.downloadProgressBar = SegmentedProgressBar()
             widgetLayout.addWidget(self.downloadProgressBar)
             item = QListWidgetItem()
             item.setFlags(noSelectFlags)
             item.setSizeHint(widget.sizeHint())
             self.downloadListBox.addItem(item)
-            self.downloadListBox.setItemWidget(item, widget)
+            self.downloadListBox.setBoundedItemWidget(item, widget)
         elif type == "success":
             if self.downloadProgressBar:
-                if self.downloadProgressBar.maximum() == 0:
-                    self.downloadProgressBar.setRange(0, 100)
-                self.downloadProgressBar.setValue(100)
+                self.downloadProgressBar.setComplete()
             self.downloadProgressBar = None
             self.downloadProgressLabel = None
             item = QListWidgetItem(message)
             item.setFlags(noSelectFlags)
             item.setForeground(QColor('green'))
-            # item.setBackground(QColor(0, 255, 0, 20))
             self.downloadListBox.addItem(item)
         elif type == "failure":
             if self.downloadProgressBar:
-                if self.downloadProgressBar.maximum() == 0:
-                    self.downloadProgressBar.setRange(0, 100)
-                    self.downloadProgressBar.setValue(0)
-                self.downloadProgressBar.setFormat("✕")
-                self.downloadProgressBar.setStyleSheet("QProgressBar::chunk { background-color: #cc3333; }")
+                self.downloadProgressBar.setError(True)
             self.downloadProgressBar = None
             self.downloadProgressLabel = None
             item = QListWidgetItem(message)
             item.setFlags(noSelectFlags)
             item.setForeground(QColor('red'))
-            # item.setBackground(QColor(255, 0, 0, 20))
             self.downloadListBox.addItem(item)
         else:
             item = QListWidgetItem(message)
@@ -860,19 +850,18 @@ class GameCheatsManager(QMainWindow):
             num_bytes /= 1024
         return f"{num_bytes:.1f} TB"
 
-    def on_download_progress(self, downloaded, total):
-        if self.downloadProgressBar:
+    def on_download_progress(self, segment_data):
+        downloaded = sum(d for d, _ in segment_data)
+        total = sum(t for _, t in segment_data)
+        if self.downloadProgressLabel:
             if total > 0:
-                if self.downloadProgressBar.maximum() == 0:
-                    self.downloadProgressBar.setRange(0, 100)
-                self.downloadProgressBar.setValue(int(downloaded * 100 / total))
-            if self.downloadProgressLabel:
-                if total > 0:
-                    self.downloadProgressLabel.setText(
-                        f"{self.format_size(downloaded)} / {self.format_size(total)}"
-                    )
-                else:
-                    self.downloadProgressLabel.setText(self.format_size(downloaded))
+                self.downloadProgressLabel.setText(
+                    f"{self.format_size(downloaded)} / {self.format_size(total)}"
+                )
+            else:
+                self.downloadProgressLabel.setText(self.format_size(downloaded))
+        if self.downloadProgressBar:
+            self.downloadProgressBar.setSegmentProgress(segment_data)
 
     def on_message_box(self, type, title, text):
         if type == "info":

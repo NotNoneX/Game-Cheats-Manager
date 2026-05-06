@@ -1,6 +1,6 @@
-from PyQt6.QtCore import QEasingCurve, QPropertyAnimation, QRect, Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QColor, QFont, QFontDatabase, QPainter, QPixmap
-from PyQt6.QtWidgets import QApplication, QFrame, QGraphicsDropShadowEffect, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QProxyStyle, QPushButton, QStyle, QVBoxLayout, QWidget
+from PyQt6.QtCore import QEasingCurve, QPropertyAnimation, QRect, QRectF, Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QColor, QFont, QFontDatabase, QPainter, QPainterPath, QPalette, QPen, QPixmap, QRegion
+from PyQt6.QtWidgets import QApplication, QFrame, QGraphicsDropShadowEffect, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QProxyStyle, QPushButton, QSizePolicy, QStyle, QVBoxLayout, QWidget
 from zhon.cedict import simp, trad
 
 from config import *
@@ -311,6 +311,8 @@ class StatusMessageWidget(QWidget):
 
 
 class MultilingualListWidget(QListWidget):
+    _BOUNDED_PROP = "_bounded_to_viewport"
+
     def __init__(self):
         super().__init__()
         self.english_font = QFont(QFontDatabase.applicationFontFamilies(QFontDatabase.addApplicationFont(font_config['en_US']))[0], 10)
@@ -331,6 +333,27 @@ class MultilingualListWidget(QListWidget):
 
         super().addItem(item)
 
+    def setBoundedItemWidget(self, item, widget):
+        """Set an item widget whose width is bounded to the list's viewport,
+        so it stays fully visible even when other (text-only) items make the
+        list horizontally scrollable."""
+        super().setItemWidget(item, widget)
+        widget.setProperty(self._BOUNDED_PROP, True)
+        self._fit_widget_to_viewport(item, widget)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        for i in range(self.count()):
+            item = self.item(i)
+            widget = self.itemWidget(item)
+            if widget and widget.property(self._BOUNDED_PROP):
+                self._fit_widget_to_viewport(item, widget)
+
+    def _fit_widget_to_viewport(self, item, widget):
+        max_w = max(0, self.viewport().width() - 6)  # leave breathing room on the right
+        widget.setFixedWidth(max_w)
+        item.setSizeHint(widget.sizeHint())
+
     @staticmethod
     def is_chinese_simplified(text):
         return any(char in simp for char in text)
@@ -338,6 +361,207 @@ class MultilingualListWidget(QListWidget):
     @staticmethod
     def is_chinese_traditional(text):
         return any(char in trad for char in text)
+
+
+class SegmentedProgressBar(QWidget):
+    """Animated progress bar that can be subdivided into N segments — one per
+    parallel download chunk. A single segment renders as a normal progress bar.
+    Segments share one outer border; the overall percentage is shown centered."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._target = [0.0]
+        self._displayed = [0.0]
+        self._segment_totals = [1.0]
+        self._indeterminate = True
+        self._sweep_pos = 0.0
+        self._error = False
+        self._show_cross = False
+        self._radius = 2
+
+        self.setFixedHeight(16)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+        self._timer = QTimer(self)
+        self._timer.timeout.connect(self._tick)
+        self._timer.start(16)
+
+    # ---- Public API ----
+    def setSegmentProgress(self, segment_data):
+        """segment_data: list of (downloaded, total) tuples — one per segment."""
+        self._indeterminate = False
+        n = len(segment_data)
+        if n != len(self._target):
+            self._target = [0.0] * n
+            self._displayed = [0.0] * n
+        self._segment_totals = [max(1.0, float(t)) for _, t in segment_data]
+        for i, (d, t) in enumerate(segment_data):
+            self._target[i] = (d / t) if t > 0 else 0.0
+        self._ensure_running()
+
+    def setComplete(self):
+        self._indeterminate = False
+        self._target = [1.0] * max(1, len(self._target))
+        if len(self._displayed) != len(self._target):
+            self._displayed = [0.0] * len(self._target)
+        self._ensure_running()
+
+    def setError(self, error=True):
+        self._error = error
+        self._show_cross = False
+        if error:
+            # If failure happened during the indeterminate sweep (no real
+            # progress yet), fill the bar so the cross sits on solid red.
+            # If progress was already underway, keep the partial fill — it
+            # just turns red via the _error flag.
+            if self._indeterminate:
+                self._indeterminate = False
+                self._show_cross = True
+                n = max(1, len(self._target))
+                self._target = [1.0] * n
+                self._displayed = [1.0] * n
+            self._timer.stop()
+        self.update()
+
+    # ---- Animation loop ----
+    def _ensure_running(self):
+        if not self._timer.isActive():
+            self._timer.start(16)
+
+    def _tick(self):
+        if self._indeterminate:
+            self._sweep_pos = (self._sweep_pos + 0.018) % 1.0
+            self.update()
+            return
+
+        animating = False
+        speed = 0.18
+        for i in range(len(self._displayed)):
+            target = self._target[i]
+            current = self._displayed[i]
+            diff = target - current
+            if abs(diff) > 0.0005:
+                self._displayed[i] = current + diff * speed
+                animating = True
+            else:
+                self._displayed[i] = target
+
+        if animating:
+            self.update()
+        else:
+            self._timer.stop()
+            self.update()
+
+    # ---- Painting ----
+    def paintEvent(self, ev):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        rect = self.rect()
+        n = len(self._displayed)
+        if n == 0 or rect.width() <= 0:
+            painter.end()
+            return
+
+        outer = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5)
+        bg = self._bg_color()
+        fill = QColor("#cc3333") if self._error else self._fill_color()
+        border = self._border_color()
+
+        # Background
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(bg)
+        painter.drawRoundedRect(outer, self._radius, self._radius)
+
+        # Clip subsequent fills to the rounded outer shape
+        clip_path = QPainterPath()
+        clip_path.addRoundedRect(outer, self._radius, self._radius)
+
+        seg_w = rect.width() / n
+        fill_rects = []
+        painter.save()
+        painter.setClipPath(clip_path)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(fill)
+        for i in range(n):
+            x = i * seg_w
+            if self._indeterminate:
+                indicator_w = max(seg_w * 0.3, 12.0)
+                ind_x = x + (seg_w + indicator_w) * self._sweep_pos - indicator_w
+                r = QRectF(ind_x, 0, indicator_w, rect.height())
+                painter.drawRect(r)
+                fill_rects.append(r)
+            else:
+                fill_w = seg_w * self._displayed[i]
+                if fill_w > 0:
+                    r = QRectF(x, 0, fill_w, rect.height())
+                    painter.drawRect(r)
+                    fill_rects.append(r)
+        painter.restore()
+
+        # Outer border (single border around the whole bar)
+        painter.setPen(QPen(border, 1))
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawRoundedRect(outer, self._radius, self._radius)
+
+        # Centered overall percentage (or "✕" on indeterminate-stage failure),
+        # two-tone for readability across the fill boundary.
+        if not self._indeterminate and n > 0:
+            if self._show_cross:
+                text = "✕"
+            else:
+                total = sum(self._segment_totals)
+                if total > 0:
+                    done = sum(self._displayed[i] * self._segment_totals[i] for i in range(n))
+                    pct = int(round(done / total * 100))
+                else:
+                    pct = 0
+                text = f"{pct}%"
+
+            font = painter.font()
+            font.setPointSize(9 if self._show_cross else 8)
+            font.setBold(True)
+            painter.setFont(font)
+
+            painter.setPen(self._text_outside_color())
+            painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, text)
+
+            if fill_rects:
+                region = QRegion()
+                for fr in fill_rects:
+                    region += QRegion(fr.toAlignedRect())
+                painter.save()
+                painter.setClipRegion(region)
+                painter.setPen(self._text_inside_color())
+                painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, text)
+                painter.restore()
+
+        painter.end()
+
+    def _bg_color(self):
+        c = self.palette().color(QPalette.ColorRole.AlternateBase)
+        if not c.isValid() or c.alpha() == 0:
+            c = QColor(60, 60, 60) if self._is_dark() else QColor(220, 220, 220)
+        return c
+
+    def _fill_color(self):
+        c = self.palette().color(QPalette.ColorRole.Highlight)
+        if not c.isValid() or c.alpha() == 0:
+            c = QColor(70, 130, 230)
+        return c
+
+    def _border_color(self):
+        bg = self._bg_color()
+        return bg.lighter(180) if self._is_dark() else bg.darker(140)
+
+    def _text_outside_color(self):
+        return self.palette().color(QPalette.ColorRole.Text)
+
+    def _text_inside_color(self):
+        return self.palette().color(QPalette.ColorRole.HighlightedText)
+
+    def _is_dark(self):
+        return self.palette().color(QPalette.ColorRole.Window).lightness() < 128
 
 
 class AlertWidget(QWidget):

@@ -2,6 +2,9 @@ import json
 import os
 import re
 import string
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urlparse, unquote
 import uuid
 import warnings
@@ -15,13 +18,16 @@ import zhon
 
 from config import *
 
+_PARALLEL_THRESHOLD = 2 * 1024 * 1024  # skip parallel for files < 2 MB
+
 warnings.simplefilter("ignore", InsecureRequestWarning)
 
 
 class DownloadBaseThread(QThread):
     message = pyqtSignal(str, str)
     messageBox = pyqtSignal(str, str, str)
-    progress = pyqtSignal(int, int)
+    # progress emits a list of (downloaded, total) per segment.
+    progress = pyqtSignal(list)
     finished = pyqtSignal(int)
 
     trainer_urls = []  # [{"game_name": str, "trainer_name": str, "origin": str, "author": str, "custom_name": str, "url": download url, "version": YYYY.MM.DD},]
@@ -43,10 +49,9 @@ class DownloadBaseThread(QThread):
             if use_cloudScraper:
                 scraper = cloudscraper.create_scraper()
                 req = scraper.get(url, headers=self.headers, verify=verify)
-                req.raise_for_status()
             else:
                 req = requests.get(url, headers=self.headers, verify=verify)
-                req.raise_for_status()
+            req.raise_for_status()
         except Exception as e:
             print(f"Error requesting {url}: {str(e)}")
             return ""
@@ -60,32 +65,93 @@ class DownloadBaseThread(QThread):
             if use_cloudScraper:
                 scraper = cloudscraper.create_scraper()
                 req = scraper.get(url, headers=self.headers, verify=verify, stream=True, timeout=30)
-                req.raise_for_status()
             else:
                 req = requests.get(url, headers=self.headers, verify=verify, stream=True, timeout=30)
-                req.raise_for_status()
+            req.raise_for_status()
         except Exception as e:
             print(f"Error requesting {url}: {str(e)}")
             return ""
 
         file_path = os.path.join(download_path, self.find_download_fname(req))
         total_size = int(req.headers.get('content-length', 0))
-        downloaded = 0
+        supports_ranges = req.headers.get('accept-ranges', '').lower() == 'bytes'
+
+        if not use_cloudScraper and supports_ranges and total_size >= _PARALLEL_THRESHOLD:
+            mb = total_size / (1024 * 1024)
+            num_chunks = 2 if mb < 5 else 4 if mb < 20 else 6
+        else:
+            num_chunks = 1
+        return self.download_parallel(req, url, file_path, total_size, verify, num_chunks)
+
+    def download_parallel(self, initial_req, url, file_path, total_size, verify, num_chunks):
+        if num_chunks > 1:
+            initial_req.close()
+            chunk_size = total_size // num_chunks
+            byte_ranges = [
+                (i * chunk_size, (i + 1) * chunk_size - 1 if i < num_chunks - 1 else total_size - 1)
+                for i in range(num_chunks)
+            ]
+            segment_totals = [end - start + 1 for start, end in byte_ranges]
+        else:
+            byte_ranges = [None]
+            segment_totals = [total_size]
+
+        segment_downloaded = [0] * num_chunks
+        downloaded_lock = threading.Lock()
+        last_emit = [0.0]
+        EMIT_INTERVAL = 0.05  # 50ms throttle to avoid flooding the UI thread
+        chunk_data = {}
+
+        def emit_progress():
+            self.progress.emit(
+                [(segment_downloaded[i], segment_totals[i]) for i in range(num_chunks)]
+            )
+
+        emit_progress()
+
+        def fetch_chunk(idx, byte_range):
+            if byte_range is not None:
+                chunk_headers = {**self.headers, 'Range': f'bytes={byte_range[0]}-{byte_range[1]}'}
+                resp = requests.get(url, headers=chunk_headers, verify=verify, stream=True, timeout=60)
+                resp.raise_for_status()
+            else:
+                resp = initial_req
+            data = bytearray()
+            for piece in resp.iter_content(chunk_size=65536):
+                if piece:
+                    data.extend(piece)
+                    with downloaded_lock:
+                        segment_downloaded[idx] += len(piece)
+                        now = time.monotonic()
+                        if now - last_emit[0] >= EMIT_INTERVAL:
+                            last_emit[0] = now
+                            emit_progress()
+            with downloaded_lock:
+                emit_progress()
+            return idx, bytes(data)
+
         try:
-            with open(file_path, "wb") as f:
-                for chunk in req.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
-                        downloaded += len(chunk)
-                        self.progress.emit(downloaded, total_size)
+            with ThreadPoolExecutor(max_workers=num_chunks) as executor:
+                futures = {executor.submit(fetch_chunk, i, byte_ranges[i]): i for i in range(num_chunks)}
+                for future in as_completed(futures):
+                    idx, data = future.result()
+                    chunk_data[idx] = data
         except Exception as e:
-            print(f"Error during download stream: {str(e)}")
+            print(f"Download failed: {e}")
+            return ""
+
+        try:
+            with open(file_path, 'wb') as f:
+                for idx in range(num_chunks):
+                    f.write(chunk_data[idx])
+        except Exception as e:
+            print(f"Error assembling file: {e}")
             if os.path.exists(file_path):
                 os.remove(file_path)
             return ""
-        self.downloaded_file_path = file_path
 
-        return self.downloaded_file_path
+        self.downloaded_file_path = file_path
+        return file_path
 
     @staticmethod
     def find_download_fname(response):
@@ -102,7 +168,7 @@ class DownloadBaseThread(QThread):
                 filename = content_disposition.split("filename=")[-1].strip('";')
                 return filename
 
-        return urlparse(response.url).path.split("/")[-1]
+        return urlparse(str(response.url)).path.split("/")[-1]
 
     @staticmethod
     def get_signed_download_url(file_path_on_s3):
